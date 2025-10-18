@@ -75,6 +75,13 @@ export default function AirdropVerifierDApp() {
             <p className="text-gray-700 text-sm mb-4">
               Privately prove your eligibility via zkProofport without revealing your wallet address or personal data.
             </p>
+            <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 rounded-lg text-sm mb-4">
+              <h4 className="font-bold">How to Test This Demo</h4>
+              <p className="mt-1">
+                This process verifies a **Coinbase Identity Verification** attestation (on-chain EAS). 
+                To test it, you must connect a wallet in the Proof Portal that has already completed this verification on Coinbase.
+              </p>
+            </div>
             <ul className="text-sm text-gray-700 list-disc list-inside space-y-1 mb-4">
               <li>No wallet connection on this Dapp</li>
               <li>Generate proofs securely in the Proof Portal</li>
