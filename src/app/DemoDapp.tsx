@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { openZkKycPopup, verifyZkKycProof } from '@zkproofport/sdk';
+import { openProofPortal, verifyProof } from '@zkproofport/sdk';
 import Confetti from 'react-confetti';
 import { JsonRpcProvider } from 'ethers';
 
@@ -17,7 +17,9 @@ export default function AirdropVerifierDApp() {
     setStatus('fetchingProof');
     setError(null);
     try {
-      const proof = await openZkKycPopup();
+      const proof = await openProofPortal({
+        circuitId: "coinbase_kyc" 
+      });
       setRawProof(proof);
       setStatus('ready');
     } catch (err: any) {
@@ -31,11 +33,10 @@ export default function AirdropVerifierDApp() {
     setStatus('loading');
     setError(null);
 
-    const result = await verifyZkKycProof({
+    const result = await verifyProof({
       ...rawProof,
       mode,
       provider,
-      verifierAddress: '0xB3705B6d33Fe7b22e86130Fa12592B308a191483',
     });
 
     if (result.success) {
@@ -55,6 +56,7 @@ export default function AirdropVerifierDApp() {
           {
             proof: rawProof.proof,
             publicInputs: rawProof.publicInputs,
+            meta: rawProof.meta,
           },
           null,
           2
@@ -89,12 +91,12 @@ export default function AirdropVerifierDApp() {
               <li>
                 Verifier on Base:{' '}
                 <a
-                  href="https://basescan.org/address/0xB3705B6d33Fe7b22e86130Fa12592B308a191483#code"
+                  href={`https://repo.sourcify.dev/8453/0x4C163fa6756244e7f29Cb5BEA0458eA993Eb0F6d`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline hover:text-blue-700"
                 >
-                  BaseScan
+                  Sourcify
                 </a>
               </li>
             </ul>
