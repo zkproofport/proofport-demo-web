@@ -734,10 +734,10 @@
   resolved "https://registry.yarnpkg.com/@unrs/resolver-binding-win32-x64-msvc/-/resolver-binding-win32-x64-msvc-1.11.1.tgz#538b1e103bf8d9864e7b85cc96fa8d6fb6c40777"
   integrity sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==
 
-"@zkproofport/sdk@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@zkproofport/sdk/-/sdk-0.2.2.tgz#573fc7aef5d134711a310e114b4bbcb1601f97f3"
-  integrity sha512-3+CfPS36YWE/hAsmnAPBDTNrnzaaBF9XeCJ/Q2R+GF9ytzgz5HVXk9aBN9hXMg5onqDrdncDbAtxvt5H4VjHnQ==
+"@zkproofport/sdk@0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@zkproofport/sdk/-/sdk-0.2.3.tgz#1fb8c7770ae4b6c9e4761fd2ba19583cb414f9b2"
+  integrity sha512-vC3TVQdoqLaEfwFbzG/B5pG2geqozwflUV5nuqpDZwThYS9HC8iEo8KwlpHfCf5/gP09opRsEw/2eI0APVatsg==
   dependencies:
     "@aztec/bb.js" "^0.87.8"
     "@ethersproject/bytes" "^5.8.0"
