@@ -1,26 +1,40 @@
 'use client';
 import { useState } from 'react';
-import { openProofPortal, verifyProof } from '@zkproofport/sdk';
+import { openProofPortal, verifyProof, verifySolanaProofSimulate } from '@zkproofport/sdk';
 import Confetti from 'react-confetti';
 import { JsonRpcProvider } from 'ethers';
 
-export default function AirdropVerifierDApp() {
+type ChainOption = 'base' | 'solana';
+
+interface SolanaVerifyResult {
+  success: boolean;
+  signature?: string;
+  explorerUrl?: string;
+  error?: string;
+}
+
+export default function BotProtectionVerifierDApp() {
   const [status, setStatus] = useState<'idle' | 'fetchingProof' | 'loading' | 'ready' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [rawProof, setRawProof] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [selectedChain, setSelectedChain] = useState<ChainOption>('base');
+  const [proofChain, setProofChain] = useState<ChainOption | null>(null);
+  const [solanaResult, setSolanaResult] = useState<SolanaVerifyResult | null>(null);
 
-  const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_RPC_URL);
+  const baseProvider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_RPC_URL);
 
   const handleOpenProofPortal = async () => {
     setStatus('fetchingProof');
     setError(null);
+    setProofChain(null);
+    setSolanaResult(null);
     try {
-      const proof = await openProofPortal({
-        circuitId: "coinbase_kyc" 
-      });
+      const circuitId = selectedChain === 'base' ? 'coinbase_kyc' : 'coinbase_kyc_solana';
+      const proof = await openProofPortal({ circuitId });
       setRawProof(proof);
+      setProofChain(selectedChain);
       setStatus('ready');
     } catch (err: any) {
       setStatus('error');
@@ -28,7 +42,7 @@ export default function AirdropVerifierDApp() {
     }
   };
 
-  const handleVerifyMode = async (mode: 'offchain' | 'onchain') => {
+  const handleVerifyBase = async (mode: 'offchain' | 'onchain') => {
     if (!rawProof) return;
     setStatus('loading');
     setError(null);
@@ -36,7 +50,7 @@ export default function AirdropVerifierDApp() {
     const result = await verifyProof({
       ...rawProof,
       mode,
-      provider,
+      provider: baseProvider,
     });
 
     if (result.success) {
@@ -46,6 +60,59 @@ export default function AirdropVerifierDApp() {
     } else {
       setStatus('error');
       setError((result as any).error || 'Verification failed');
+    }
+  };
+
+  const handleVerifySolana = async () => {
+    if (!rawProof) return;
+    setStatus('loading');
+    setError(null);
+    setSolanaResult(null);
+
+    try {
+      const solanaRpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+      const programId = process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID;
+      
+      if (!programId) {
+        throw new Error('NEXT_PUBLIC_SOLANA_PROGRAM_ID is not configured');
+      }
+
+      if (!rawProof.proof) {
+        throw new Error('Proof data is missing');
+      }
+
+      const publicWitness = rawProof.publicWitness || rawProof.publicInputs || '';
+
+      console.log('[DemoDapp] Verifying Solana proof...');
+      console.log('[DemoDapp] Program ID:', programId);
+      console.log('[DemoDapp] Proof length:', rawProof.proof.length);
+      console.log('[DemoDapp] Public witness:', publicWitness ? `${String(publicWitness).length} chars` : 'empty');
+
+      const result = await verifySolanaProofSimulate({
+        proof: rawProof.proof,
+        publicWitness: publicWitness,
+        verifierProgramId: programId,
+        rpcUrl: solanaRpcUrl,
+      });
+
+      if (result.success) {
+        console.log('[DemoDapp] ✅ Solana proof verified!');
+        setSolanaResult({
+          success: true,
+          signature: result.signature,
+          explorerUrl: result.explorerUrl,
+        });
+        setStatus('success');
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
+      } else {
+        throw new Error(result.error || 'Verification failed');
+      }
+      
+    } catch (err: any) {
+      console.error('[DemoDapp] Solana verification error:', err);
+      setStatus('error');
+      setError(err.message || 'Solana verification failed');
     }
   };
 
@@ -67,101 +134,184 @@ export default function AirdropVerifierDApp() {
     }
   };
 
+  const handleCopyTxSignature = () => {
+    if (solanaResult?.signature) {
+      navigator.clipboard.writeText(solanaResult.signature);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+
+  const isSolanaProof = proofChain === 'solana';
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-white to-gray-100 flex items-center justify-center px-6 py-24 relative">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-6 py-24 relative">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
-      <div className="w-full max-w-5xl bg-white border border-gray-200 rounded-3xl shadow-xl grid md:grid-cols-2 gap-8 p-10 relative">
-        <div className="flex flex-col justify-between bg-gray-50 border border-gray-100 rounded-2xl p-6 shadow-inner">
+      <div className="w-full max-w-5xl bg-slate-800/90 backdrop-blur-sm border border-purple-500/30 rounded-3xl shadow-2xl shadow-purple-500/20 grid md:grid-cols-2 gap-8 p-10 relative">
+        <div className="flex flex-col justify-between bg-slate-900/50 border border-purple-500/20 rounded-2xl p-6 shadow-inner">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">DAO Airdrop Eligibility — Example Dapp</h1>
-            <p className="text-gray-700 text-sm mb-4">
-              Privately prove your eligibility via zkProofport without revealing your wallet address or personal data.
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <span className="text-2xl">🛡️</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Bot Protection Gateway</h1>
+                <p className="text-purple-300 text-xs">Powered by zkProofport</p>
+              </div>
+            </div>
+            <p className="text-gray-300 text-sm mb-4">
+              Prove you're a verified human without revealing your identity. Stop bots and sybil attacks with zero-knowledge proofs.
             </p>
-            <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 rounded-lg text-sm mb-4">
-              <h4 className="font-bold">How to Test This Demo</h4>
-              <p className="mt-1">
-                This process verifies a **Coinbase Identity Verification** attestation (on-chain EAS). 
-                To test it, you must connect a wallet in the Proof Portal that has already completed this verification on Coinbase.
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-purple-300 mb-1">Select Verification Chain</label>
+              <select
+                value={selectedChain}
+                onChange={(e) => setSelectedChain(e.target.value as ChainOption)}
+                disabled={rawProof !== null}
+                className="w-full px-3 py-2 bg-slate-700 border border-purple-500/30 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+              >
+                <option value="base">Base</option>
+                <option value="solana">Solana (Devnet)</option>
+              </select>
+              {rawProof && (
+                <p className="text-xs text-purple-400 mt-1">
+                  Chain locked to {proofChain === 'solana' ? 'Solana' : 'Base'} for this proof
+                </p>
+              )}
+            </div>
+            <div className="bg-purple-900/50 border-l-4 border-purple-400 text-purple-100 p-4 rounded-lg text-sm mb-4">
+              <h4 className="font-bold flex items-center gap-2">
+                <span>⚠️</span> Requirements
+              </h4>
+              <p className="mt-1 text-purple-200">
+                To use this demo, you need a wallet that has completed <strong>Coinbase Identity Verification</strong> (on-chain EAS attestation on Base).
+                The ZK proof verifies this attestation without revealing your identity.
               </p>
             </div>
-            <ul className="text-sm text-gray-700 list-disc list-inside space-y-1 mb-4">
-              <li>No wallet connection on this Dapp</li>
-              <li>Generate proofs securely in the Proof Portal</li>
-              <li>Return here to verify offchain or onchain (Base)</li>
-              <li>
-                Verifier on Base:{' '}
+            <ul className="text-sm text-gray-300 list-none space-y-2 mb-4">
+              <li className="flex items-center gap-2">
+                <span className="text-green-400">✓</span> No wallet connection on this page
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-400">✓</span> Generate proofs in secure Proof Portal
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-400">✓</span> Verify on-chain with cryptographic guarantees
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-blue-400">→</span>
                 <a
-                  href={`https://repo.sourcify.dev/8453/0x4C163fa6756244e7f29Cb5BEA0458eA993Eb0F6d`}
+                  href={selectedChain === 'base' 
+                    ? `https://repo.sourcify.dev/8453/0x4C163fa6756244e7f29Cb5BEA0458eA993Eb0F6d`
+                    : `https://explorer.solana.com/address/${process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID}?cluster=devnet`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline hover:text-blue-700"
+                  className="text-purple-400 hover:text-purple-300 underline"
                 >
-                  Sourcify
+                  View Verifier Contract
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between bg-white border border-gray-100 rounded-2xl px-6 py-8 shadow-inner relative">
+        <div className="flex flex-col items-center justify-between bg-slate-900/30 border border-purple-500/20 rounded-2xl px-6 py-8 shadow-inner relative">
           <div className="top-4 right-6 space-y-4 w-full max-w-xs">
             {!rawProof && status === 'idle' && (
               <button
                 onClick={handleOpenProofPortal}
-                className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-gradient-to-r from-gray-800 to-gray-600 text-white hover:brightness-110 active:scale-95"
+                className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 active:scale-95 transition-all"
               >
-                Continue to Coinbase Proof Portal
+                🚀 Start Human Verification
               </button>
             )}
 
-            {rawProof && (
+            {rawProof && !isSolanaProof && (
               <>
                 <button
                   onClick={handleOpenProofPortal}
-                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-gradient-to-r from-gray-800 to-gray-600 text-white hover:brightness-110 active:scale-95"
+                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-slate-700 text-white hover:bg-slate-600 active:scale-95 transition-all"
                 >
-                  Regenerate proof
+                  🔄 Regenerate Proof
                 </button>
                 <button
-                  onClick={() => handleVerifyMode('offchain')}
-                  className="w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-blue-500 text-white hover:bg-blue-600 transition"
+                  onClick={() => handleVerifyBase('offchain')}
+                  className="w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-blue-600 text-white hover:bg-blue-500 transition"
                 >
                   Verify Offchain
                 </button>
                 <button
-                  onClick={() => handleVerifyMode('onchain')}
-                  className="w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-violet-500 text-white hover:bg-violet-600 transition"
+                  onClick={() => handleVerifyBase('onchain')}
+                  className="w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-violet-600 text-white hover:bg-violet-500 transition"
                 >
-                  Verify Onchain
+                  Verify Onchain (Base)
+                </button>
+              </>
+            )}
+
+            {rawProof && isSolanaProof && (
+              <>
+                <button
+                  onClick={handleOpenProofPortal}
+                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-slate-700 text-white hover:bg-slate-600 active:scale-95 transition-all"
+                >
+                  🔄 Regenerate Proof
+                </button>
+                <button
+                  onClick={handleVerifySolana}
+                  className="w-full py-3 text-sm font-semibold rounded-xl shadow-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 transition"
+                >
+                  ⚡ Verify Onchain (Solana)
                 </button>
               </>
             )}
           </div>
 
-          <div className="mt-6 h-[64px] flex flex-col justify-center items-center text-center space-y-2 text-xs text-gray-500">
+          <div className="mt-6 flex flex-col justify-center items-center text-center space-y-2 text-xs text-gray-400 w-full">
             {status === 'ready' && (
-              <div className="flex flex-col items-center space-y-2 mt-6 text-center text-xs text-gray-500 leading-relaxed">
+              <div className="flex flex-col items-center space-y-2 mt-6 text-center text-xs text-gray-400 leading-relaxed">
                 <p>Each proof can be used only once.</p>
                 <button
                   onClick={handleCopy}
-                  className="inline-block w-full px-5 py-2 text-xs font-medium rounded-md border border-green-600 text-green-700 hover:bg-green-50 transition"
+                  className="inline-block w-full px-5 py-2 text-xs font-medium rounded-md border border-purple-500 text-purple-400 hover:bg-purple-500/10 transition"
                 >
-                  {copied ? 'Copied!' : 'Copy proof JSON'}
+                  {copied ? 'Copied!' : '📋 Copy Proof JSON'}
                 </button>
               </div>
             )}
-            {status === 'fetchingProof' && <p className="text-xs text-gray-500">📝 Waiting for proof…</p>}
-            {status === 'loading' && <p className="text-xs text-gray-500">⏳ Verifying…</p>}
+            {status === 'fetchingProof' && <p className="text-xs text-purple-400">📝 Waiting for proof from portal…</p>}
+            {status === 'loading' && <p className="text-xs text-purple-400">⏳ Verifying on-chain…</p>}
             {status === 'error' && (
-              <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md px-4 py-3 shadow-sm mt-2">
-                Verification failed: {error}
+              <div className="bg-red-900/50 border border-red-500/50 text-red-300 text-xs rounded-md px-4 py-3 shadow-sm mt-2">
+                ❌ Verification failed: {error}
               </div>
             )}
             {status === 'success' && (
-              <div className="mt-4 space-y-3">
-                <div className="bg-green-100 border border-green-300 text-green-800 text-sm rounded-md px-4 py-3 shadow-sm">
-                  Proof verified! You can now join the airdrop pool.
+              <div className="mt-4 space-y-3 w-full">
+                <div className="bg-green-900/50 border border-green-500/50 text-green-300 text-sm rounded-md px-4 py-3 shadow-sm">
+                  ✅ Human verified! Bot protection passed.
                 </div>
+                
+                {/* Solana specific: TX link and copy */}
+                {isSolanaProof && solanaResult?.signature && (
+                  <div className="space-y-2">
+                    <a
+                      href={solanaResult.explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full py-2 px-4 text-xs font-medium rounded-md bg-purple-600/20 border border-purple-500/50 text-purple-300 hover:bg-purple-600/30 transition text-center"
+                    >
+                      🔗 View Transaction on Solana Explorer
+                    </a>
+                    <button
+                      onClick={handleCopyTxSignature}
+                      className="w-full py-2 px-4 text-xs font-medium rounded-md border border-purple-500/50 text-purple-400 hover:bg-purple-500/10 transition"
+                    >
+                      {copied ? 'Copied!' : '📋 Copy TX Signature'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
