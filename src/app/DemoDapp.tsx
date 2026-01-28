@@ -145,7 +145,7 @@ export default function BotProtectionVerifierDApp() {
   const isSolanaProof = proofChain === 'solana';
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-6 py-24 relative">
+    <main className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 flex items-center justify-center px-6 py-24 relative">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
       
       {/* Demo DApp Banner */}
@@ -153,56 +153,56 @@ export default function BotProtectionVerifierDApp() {
         🎮 <strong>Demo DApp</strong> — This app only uses the SDK. Your wallet connects securely in the Portal, not here.
       </div>
       
-      <div className="w-full max-w-5xl bg-slate-800/90 backdrop-blur-sm border border-purple-500/30 rounded-3xl shadow-2xl shadow-purple-500/20 grid md:grid-cols-2 gap-8 p-10 relative mt-8">
-        <div className="flex flex-col justify-between bg-slate-900/50 border border-purple-500/20 rounded-2xl p-6 shadow-inner">
+      <div className="w-full max-w-5xl bg-slate-50 backdrop-blur-sm border border-slate-300 rounded-3xl shadow-xl shadow-slate-400/20 grid md:grid-cols-2 gap-8 p-10 relative mt-8">
+        <div className="flex flex-col justify-between bg-slate-100 border border-slate-200 rounded-2xl p-6 shadow-inner">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <span className="text-2xl">🛡️</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Bot Protection Gateway</h1>
-                <p className="text-purple-300 text-xs">Powered by zkProofport</p>
+                <h1 className="text-2xl font-bold text-gray-900">Bot Protection Gateway</h1>
+                <p className="text-gray-500 text-xs">Powered by zkProofport</p>
               </div>
             </div>
-            <p className="text-gray-300 text-sm mb-4">
+            <p className="text-gray-600 text-sm mb-4">
               Prove you're a verified human without revealing your identity. Stop bots and sybil attacks with zero-knowledge proofs.
             </p>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-purple-300 mb-1">Select Verification Chain</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Select Verification Chain</label>
               <select
                 value={selectedChain}
                 onChange={(e) => setSelectedChain(e.target.value as ChainOption)}
                 disabled={rawProof !== null}
-                className="w-full px-3 py-2 bg-slate-700 border border-purple-500/30 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 <option value="base">Base</option>
                 <option value="solana">Solana (Devnet)</option>
               </select>
               {rawProof && (
-                <p className="text-xs text-purple-400 mt-1">
+                <p className="text-xs text-blue-600 mt-1">
                   Chain locked to {proofChain === 'solana' ? 'Solana' : 'Base'} for this proof
                 </p>
               )}
             </div>
-            <div className="bg-purple-900/50 border-l-4 border-purple-400 text-purple-100 p-4 rounded-lg text-sm mb-4">
+            <div className="bg-blue-50 border-l-4 border-blue-500 text-blue-900 p-4 rounded-lg text-sm mb-4">
               <h4 className="font-bold flex items-center gap-2">
                 <span>⚠️</span> Requirements
               </h4>
-              <p className="mt-1 text-purple-200">
+              <p className="mt-1 text-blue-800">
                 To use this demo, you need a wallet that has completed <strong>Coinbase Identity Verification</strong> (on-chain EAS attestation on Base).
                 The ZK proof verifies this attestation without revealing your identity.
               </p>
             </div>
-            <ul className="text-sm text-gray-300 list-none space-y-2 mb-4">
+            <ul className="text-sm text-gray-600 list-none space-y-2 mb-4">
               <li className="flex items-center gap-2">
-                <span className="text-green-400">✓</span> No wallet connection on this page
+                <span className="text-green-600">✓</span> No wallet connection on this page
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-400">✓</span> Generate proofs in secure Proof Portal
+                <span className="text-green-600">✓</span> Generate proofs in secure Proof Portal
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-400">✓</span> Verify on-chain with cryptographic guarantees
+                <span className="text-green-600">✓</span> Verify on-chain with cryptographic guarantees
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-blue-400">→</span>
@@ -213,7 +213,7 @@ export default function BotProtectionVerifierDApp() {
                   }
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-purple-400 hover:text-purple-300 underline"
+                  className="text-blue-600 hover:text-blue-700 underline"
                 >
                   View Verifier Contract
                 </a>
@@ -222,12 +222,12 @@ export default function BotProtectionVerifierDApp() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between bg-slate-900/30 border border-purple-500/20 rounded-2xl px-6 py-8 shadow-inner relative">
+        <div className="flex flex-col items-center justify-between bg-slate-100 border border-slate-200 rounded-2xl px-6 py-8 shadow-inner relative">
           <div className="top-4 right-6 space-y-4 w-full max-w-xs">
             {!rawProof && status === 'idle' && (
               <button
                 onClick={handleOpenProofPortal}
-                className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 active:scale-95 transition-all"
+                className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 active:scale-95 transition-all"
               >
                 🚀 Start Human Verification
               </button>
@@ -237,7 +237,7 @@ export default function BotProtectionVerifierDApp() {
               <>
                 <button
                   onClick={handleOpenProofPortal}
-                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-slate-700 text-white hover:bg-slate-600 active:scale-95 transition-all"
+                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-gray-200 text-gray-700 hover:bg-gray-300 active:scale-95 transition-all"
                 >
                   🔄 Regenerate Proof
                 </button>
@@ -260,7 +260,7 @@ export default function BotProtectionVerifierDApp() {
               <>
                 <button
                   onClick={handleOpenProofPortal}
-                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-slate-700 text-white hover:bg-slate-600 active:scale-95 transition-all"
+                  className="w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-md bg-gray-200 text-gray-700 hover:bg-gray-300 active:scale-95 transition-all"
                 >
                   🔄 Regenerate Proof
                 </button>
@@ -274,9 +274,9 @@ export default function BotProtectionVerifierDApp() {
             )}
           </div>
 
-          <div className="mt-6 flex flex-col justify-center items-center text-center space-y-2 text-xs text-gray-400 w-full">
+          <div className="mt-6 flex flex-col justify-center items-center text-center space-y-2 text-xs text-gray-500 w-full">
             {status === 'ready' && (
-              <div className="flex flex-col items-center space-y-2 mt-6 text-center text-xs text-gray-400 leading-relaxed">
+              <div className="flex flex-col items-center space-y-2 mt-6 text-center text-xs text-gray-500 leading-relaxed">
                 <p>Each proof can be used only once.</p>
                 <button
                   onClick={handleCopy}
