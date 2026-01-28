@@ -147,7 +147,13 @@ export default function BotProtectionVerifierDApp() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-6 py-24 relative">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
-      <div className="w-full max-w-5xl bg-slate-800/90 backdrop-blur-sm border border-purple-500/30 rounded-3xl shadow-2xl shadow-purple-500/20 grid md:grid-cols-2 gap-8 p-10 relative">
+      
+      {/* Demo DApp Banner */}
+      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-black py-2 px-4 text-center text-sm font-medium z-50">
+        🎮 <strong>Demo DApp</strong> — This app only uses the SDK. Your wallet connects securely in the Portal, not here.
+      </div>
+      
+      <div className="w-full max-w-5xl bg-slate-800/90 backdrop-blur-sm border border-purple-500/30 rounded-3xl shadow-2xl shadow-purple-500/20 grid md:grid-cols-2 gap-8 p-10 relative mt-8">
         <div className="flex flex-col justify-between bg-slate-900/50 border border-purple-500/20 rounded-2xl p-6 shadow-inner">
           <div>
             <div className="flex items-center gap-3 mb-4">
