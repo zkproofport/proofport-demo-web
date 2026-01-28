@@ -135,8 +135,18 @@ export default function BotProtectionVerifierDApp() {
   };
 
   const handleCopyTxSignature = () => {
-    if (solanaResult?.signature) {
-      navigator.clipboard.writeText(solanaResult.signature);
+    if (rawProof) {
+      navigator.clipboard.writeText(
+        JSON.stringify(
+          {
+            proof: rawProof.proof,
+            publicInputs: rawProof.publicInputs,
+            meta: rawProof.meta,
+          },
+          null,
+          2
+        )
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }
@@ -280,22 +290,22 @@ export default function BotProtectionVerifierDApp() {
                 <p>Each proof can be used only once.</p>
                 <button
                   onClick={handleCopy}
-                  className="inline-block w-full px-5 py-2 text-xs font-medium rounded-md border border-purple-500 text-purple-400 hover:bg-purple-500/10 transition"
+                  className="inline-block w-full px-5 py-2 text-xs font-medium rounded-md border border-blue-500 text-blue-600 hover:bg-blue-50 transition"
                 >
                   {copied ? 'Copied!' : '📋 Copy Proof JSON'}
                 </button>
               </div>
             )}
-            {status === 'fetchingProof' && <p className="text-xs text-purple-400">📝 Waiting for proof from portal…</p>}
-            {status === 'loading' && <p className="text-xs text-purple-400">⏳ Verifying on-chain…</p>}
+            {status === 'fetchingProof' && <p className="text-xs text-blue-600">📝 Waiting for proof from portal…</p>}
+            {status === 'loading' && <p className="text-xs text-blue-600">⏳ Verifying on-chain…</p>}
             {status === 'error' && (
-              <div className="bg-red-900/50 border border-red-500/50 text-red-300 text-xs rounded-md px-4 py-3 shadow-sm mt-2">
+              <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md px-4 py-3 shadow-sm mt-2">
                 ❌ Verification failed: {error}
               </div>
             )}
             {status === 'success' && (
               <div className="mt-4 space-y-3 w-full">
-                <div className="bg-green-900/50 border border-green-500/50 text-green-300 text-sm rounded-md px-4 py-3 shadow-sm">
+                <div className="bg-green-50 border border-green-400 text-green-700 text-sm rounded-md px-4 py-3 shadow-sm font-medium">
                   ✅ Human verified! Bot protection passed.
                 </div>
                 
@@ -306,15 +316,15 @@ export default function BotProtectionVerifierDApp() {
                       href={solanaResult.explorerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full py-2 px-4 text-xs font-medium rounded-md bg-purple-600/20 border border-purple-500/50 text-purple-300 hover:bg-purple-600/30 transition text-center"
+                      className="block w-full py-2 px-4 text-xs font-medium rounded-md bg-indigo-100 border border-indigo-300 text-indigo-700 hover:bg-indigo-200 transition text-center"
                     >
                       🔗 View Transaction on Solana Explorer
                     </a>
                     <button
                       onClick={handleCopyTxSignature}
-                      className="w-full py-2 px-4 text-xs font-medium rounded-md border border-purple-500/50 text-purple-400 hover:bg-purple-500/10 transition"
+                      className="w-full py-2 px-4 text-xs font-medium rounded-md border border-blue-400 text-blue-600 hover:bg-blue-50 transition"
                     >
-                      {copied ? 'Copied!' : '📋 Copy TX Signature'}
+                      {copied ? 'Copied!' : '📋 Copy Proof'}
                     </button>
                   </div>
                 )}
