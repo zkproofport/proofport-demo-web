@@ -287,7 +287,7 @@ export default function BotProtectionVerifierDApp() {
           <div className="mt-6 flex flex-col justify-center items-center text-center space-y-2 text-xs text-gray-500 w-full">
             {status === 'ready' && (
               <div className="flex flex-col items-center space-y-2 mt-6 text-center text-xs text-gray-500 leading-relaxed">
-                <p>Each proof can be used only once.</p>
+                {!isSolanaProof && <p>Each proof can be used only once.</p>}
                 <button
                   onClick={handleCopy}
                   className="inline-block w-full px-5 py-2 text-xs font-medium rounded-md border border-blue-500 text-blue-600 hover:bg-blue-50 transition"
